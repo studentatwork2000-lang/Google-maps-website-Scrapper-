@@ -1,0 +1,3 @@
+businessName,category,phone,website,rating,reviewCount,address,googleMapsUrl,placeId,leadStatus,leadReason
+Sample Curry House,Indian restaurant,+1 604-000-0000,,4.7,182,"Vancouver, BC",https://maps.google.com/?cid=sample1,sample-place-1,Strong Gold,"No website listed and strong review count."
+Demo Pizza Spot,Pizza restaurant,+1 604-111-1111,https://example.com,4.3,96,"Vancouver, BC",https://maps.google.com/?cid=sample2,sample-place-2,Review,"Website listed. Check quality manually."
