@@ -1,13 +1,17 @@
-const COLUMNS = [
+export const COLUMNS = [
+  'slNo',
   'businessName',
   'category',
   'phone',
+  'email',
   'website',
   'rating',
   'reviewCount',
   'address',
+  'briefLocation',
   'googleMapsUrl',
   'placeId',
+  'sourceSearch',
   'leadStatus',
   'leadReason'
 ];
@@ -22,8 +26,9 @@ function escapeCsv(value) {
 
 export function createCsv(leads) {
   const rows = [COLUMNS.join(',')];
-  for (const lead of leads) {
-    rows.push(COLUMNS.map((column) => escapeCsv(lead[column])).join(','));
-  }
+  leads.forEach((lead, index) => {
+    const row = { slNo: lead.slNo || index + 1, ...lead };
+    rows.push(COLUMNS.map((column) => escapeCsv(row[column])).join(','));
+  });
   return rows.join('\n');
 }

@@ -50,10 +50,12 @@ function normalizePlace(place) {
     businessName: place.displayName?.text || '',
     category,
     phone,
+    email: '',
     website: place.websiteUri || '',
     rating: place.rating ?? '',
     reviewCount: place.userRatingCount ?? '',
     address: place.formattedAddress || '',
+    briefLocation: place.formattedAddress || '',
     googleMapsUrl: place.googleMapsUri || '',
     placeId: place.id || String(place.name || '').replace(/^places\//, '') || ''
   };
@@ -110,6 +112,7 @@ function needsDetails(lead) {
 }
 
 export async function searchPlaces({ query, location, limit }) {
+  const sourceSearch = `${query} | ${location}`;
   const textQuery = `${query} in ${location}`.trim();
   const collected = [];
   const seen = new Set();
@@ -120,7 +123,7 @@ export async function searchPlaces({ query, location, limit }) {
     const places = Array.isArray(page.places) ? page.places : [];
 
     for (const place of places) {
-      const lead = normalizePlace(place);
+      const lead = { ...normalizePlace(place), sourceSearch, briefLocation: location };
       if (!lead.placeId || seen.has(lead.placeId)) continue;
       seen.add(lead.placeId);
       collected.push(lead);
