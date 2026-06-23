@@ -1,0 +1,111 @@
+You are working on a local MVP called “Website Sales Lead Finder”.
+
+Context:
+This is a starter project, not a completed scraper. No Codex build has been done yet. The user needs a practical working MVP quickly.
+
+Goal:
+Finish a local lead-finding app that finds website-sales leads using Google Places API data from the backend. The key purpose is to retrieve the official business website field without opening each Google Maps listing/card manually.
+
+Hard rules:
+- Do NOT build a Google Maps DOM scraper.
+- Do NOT click each Maps business card one by one.
+- Do NOT copy any third-party extension code.
+- Do NOT bypass any membership/paywall logic from any tool.
+- Do NOT expose the Google API key in the frontend.
+- All Google Places API calls must happen from the backend.
+- Keep mock mode working.
+
+Current project structure:
+- client/ = React + Vite frontend
+- server/ = Express backend
+- docs/ = notes and architecture
+- server/.env = backend environment variables
+
+First actions:
+1. Run the project in mock mode first.
+2. If node_modules exists, delete root/client/server node_modules and reinstall.
+3. Confirm:
+   - npm run install:all works
+   - npm run dev works
+   - frontend opens at http://localhost:5173
+   - backend health opens at http://localhost:8787/api/health
+   - mock search returns leads
+4. Only after mock mode works, continue coding.
+
+Required MVP features to complete:
+1. Single search:
+   - User enters business niche, location, result limit.
+   - Backend calls Text Search / Places API when USE_MOCK=false.
+   - Backend uses mock data when USE_MOCK=true.
+2. Batch search:
+   - Add a textarea where user can paste multiple searches, one per line.
+   - Supported formats:
+     - Indian restaurants | Birmingham
+     - Indian restaurants near Birmingham
+     - Indian restaurants, Birmingham
+   - Run searches sequentially, not all at once.
+   - Show progress: current search, completed searches, total leads found.
+3. Deduplication:
+   - Dedupe by placeId first.
+   - If placeId is missing, dedupe by businessName + address.
+4. Lead fields:
+   - slNo
+   - businessName
+   - category
+   - phone
+   - email (blank for now)
+   - website
+   - rating
+   - reviewCount
+   - address
+   - briefLocation
+   - googleMapsUrl
+   - placeId
+   - sourceSearch
+   - leadStatus
+   - leadReason
+5. Lead scoring:
+   - No website = Gold
+   - High reviews + no website = Strong Gold
+   - Website present = Low priority / Has website
+   - Missing phone = weaker but still keep it
+6. Filters:
+   - All
+   - Gold only
+   - No website
+   - Has website
+7. CSV export:
+   - Export currently filtered rows.
+   - Include all required fields.
+   - CSV should open cleanly in Excel/Google Sheets.
+8. UX:
+   - Keep it simple.
+   - Loading state.
+   - Error state.
+   - Empty state.
+   - Counts for total, gold, no website, has website.
+   - Do not over-design.
+
+Google Places implementation:
+- Use Places API (New) Text Search from backend.
+- Use Place Details fallback only when website, phone, or googleMapsUrl is missing.
+- Use field masks properly.
+- Keep request delays small but safe.
+- If Google returns quota/rate errors, show a readable error in the UI.
+
+Environment:
+server/.env should support:
+GOOGLE_PLACES_API_KEY=your_key_here
+USE_MOCK=true
+PORT=8787
+
+When USE_MOCK=false and no GOOGLE_PLACES_API_KEY exists, show a clear backend error.
+
+Final checks before stopping:
+- npm run dev works.
+- npm run build --prefix client works.
+- Mock mode works.
+- Batch mode works in mock mode.
+- CSV export works.
+- No API key appears in client code.
+- Provide a short summary of changed files and exact next steps for adding the real Google API key.
