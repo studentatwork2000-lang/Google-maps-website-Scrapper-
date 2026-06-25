@@ -1,0 +1,147 @@
+The actual project is inside lead-finder-mvp-starter-clean-resume. Work only inside that folder.
+
+Important:
+Some existing repo files like CONTINUE_HERE.txt, CODEX_PROMPT.txt, and CODEX_FINISH_PROMPT_LEAD_FINDER.txt describe the older pure web-app direction. Treat them as historical context only. Where they conflict with this prompt, follow this prompt.
+
+Current state:
+- The previous pure-app MVP Codex work has already been run and merged.
+- The app already has React frontend, Express backend, mock mode, batch search, dedupe, filters, and CSV export.
+- Now we are changing direction to a hybrid Google Maps companion extension + backend lead engine.
+
+Product goal:
+The user manually opens Google Maps and types a search query there, for example:
+Indian restaurants near Birmingham
+
+Then our Chrome/Brave extension runs inside Google Maps and collects all businesses that Google Maps loads in the search results feed. It must not open each business card/side panel to check website data.
+
+The extension collects stable identifiers from loaded result rows, such as:
+- placeId if available
+- CID if available
+- Google Maps URL if available
+- business name/address as fallback
+
+Then the extension sends those collected identifiers to our backend.
+
+The backend performs deep enrichment. Website status must be determined only from backend enrichment, especially websiteUri from Google Places Details / Places API. Do not determine website status from visible Google Maps preview cards.
+
+Definitions:
+- websiteUri exists = Has website listed on Google Maps
+- websiteUri missing/empty = No website listed on Google Maps
+
+Strict rules:
+- Do not copy code from any third-party extension.
+- Do not call any third-party scraper backend.
+- Do not bypass paywalls, memberships, or limits from any tool.
+- Do not create a click-each-card workflow.
+- Do not put Google API keys in frontend or extension code.
+- Google API key must stay backend-only.
+- Keep mock mode working.
+- Keep rate limits conservative in dev mode.
+
+Architecture to create:
+
+1. New extension/ folder:
+Create:
+- extension/manifest.json
+- extension/contentScript.js
+- extension/contentScript.css
+- extension/background.js if useful
+- extension/popup.html and popup.js if useful
+- extension/README.md
+
+Extension behavior:
+- Runs on Google Maps pages.
+- Shows a small floating panel.
+- Buttons:
+  Start
+  Pause
+  Reset
+  Send to Backend / Enrich
+  Open Dashboard
+- User manually searches in Google Maps.
+- Extension auto-scrolls the Google Maps search results feed.
+- It collects all loaded result rows without opening each card.
+- It dedupes collected businesses locally.
+- It sends collected identifiers to backend.
+- It shows loaded count, unique count, sent count, enriched count, and errors.
+- It should call backend at configurable local URL, default http://localhost:8787.
+
+Collection method:
+- Prefer stable links/attributes visible in loaded Google Maps result elements.
+- Collect Google Maps result URLs and parse anything safe/reliable.
+- If placeId is not available, collect Maps URL + business name + address fallback.
+- Do not rely on website being visible in preview cards.
+- Do not open every side panel.
+
+2. Backend:
+Add endpoints needed by the extension:
+- health endpoint should remain.
+- endpoint to receive extension-collected places.
+- endpoint to enrich extension-collected identifiers.
+- mock enrichment when USE_MOCK=true.
+- real enrichment when USE_MOCK=false and GOOGLE_PLACES_API_KEY is present.
+
+Backend enrichment:
+- If placeId is available, use Place Details.
+- If only Maps URL/CID is available, try to normalize/resolve safely.
+- If only name/address is available, use backend search/details fallback.
+- Return normalized lead rows.
+- Website status must come from websiteUri.
+- Do not expose API key to extension/client.
+
+3. Dashboard:
+Keep the existing React dashboard.
+Add a way to view/import extension-enriched leads if needed.
+Keep filters:
+- All
+- Gold only
+- No website
+- Has website
+Keep CSV export.
+
+Required lead fields:
+- slNo
+- businessName
+- category
+- phone
+- email
+- website
+- websiteStatus
+- rating
+- reviewCount
+- address
+- briefLocation
+- googleMapsUrl
+- placeId
+- cid
+- sourceSearch
+- leadStatus
+- leadReason
+
+Lead scoring:
+- No website = Gold
+- High reviews + no website = Strong Gold
+- Website present = Low priority / Has website
+- Missing phone = weaker but still keep the row
+
+Testing:
+- First test in mock mode only.
+- No real Google API key required yet.
+- Confirm:
+  npm run install:all works
+  npm run dev works
+  backend health works
+  dashboard opens
+  extension folder exists
+  extension can be loaded unpacked in Chrome/Brave
+  extension panel appears on Google Maps
+  mock enrichment works
+  CSV export still works
+
+Final response:
+Tell me:
+- files changed/created
+- how to run app
+- how to load extension in Chrome/Brave
+- how to test with Google Maps in mock mode
+- what still needs Google API key
