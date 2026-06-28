@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Lead Finder Maps Companion",
+  "version": "0.1.0",
+  "description": "Collect loaded Google Maps result identifiers and send them to the local Lead Finder backend for enrichment.",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["https://www.google.com/maps/*", "https://www.google.co.uk/maps/*", "http://localhost:8787/*", "http://127.0.0.1:8787/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.google.com/maps/*", "https://www.google.co.uk/maps/*"],
+      "js": ["contentScript.js"],
+      "css": ["contentScript.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html", "default_title": "Lead Finder" }
+}

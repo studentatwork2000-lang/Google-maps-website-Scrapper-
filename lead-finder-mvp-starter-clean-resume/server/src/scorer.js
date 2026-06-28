@@ -26,7 +26,7 @@ export function scoreLead(lead) {
   }
 
   return {
-    leadStatus: 'Review',
-    leadReason: 'Website listed. Check website quality manually before outreach.'
+    leadStatus: 'Low priority / Has website',
+    leadReason: 'Website listed on Google Maps. Lower priority for website sales outreach.'
   };
 }

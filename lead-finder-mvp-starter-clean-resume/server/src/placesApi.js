@@ -162,3 +162,9 @@ function removeEmptyValues(obj) {
     Object.entries(obj).filter(([_key, value]) => value !== '' && value !== undefined && value !== null)
   );
 }
+
+
+export async function getPlaceDetailsLead(placeId) {
+  const details = await fetchPlaceDetails(placeId);
+  return details ? normalizePlace(details) : {};
+}

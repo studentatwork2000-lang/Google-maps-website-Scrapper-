@@ -133,6 +133,22 @@ export default function App() {
     }
   }
 
+
+  function importExtensionLeads() {
+    try {
+      const rows = JSON.parse(window.localStorage.getItem('leadFinderExtensionLeads') || '[]');
+      if (!Array.isArray(rows) || !rows.length) {
+        setError('No extension-enriched leads found in this browser tab yet. Use the extension Send / Enrich button first.');
+        return;
+      }
+      setLeads(withSerialNumbers(rows));
+      setError('');
+      setProgress({ current: 'Imported extension leads', completed: 1, total: 1, totalLeads: rows.length });
+    } catch (_error) {
+      setError('Could not import extension leads from browser storage.');
+    }
+  }
+
   async function exportCsv() {
     const response = await fetch('/api/export/csv', {
       method: 'POST',
@@ -161,7 +177,7 @@ export default function App() {
       <section className="hero-card">
         <p className="eyebrow">Local MVP</p>
         <h1>Website Sales Lead Finder</h1>
-        <p className="subtext">Find businesses through the backend Places workflow, score website-sales leads, dedupe batch results, and export outreach-ready CSV rows.</p>
+        <p className="subtext">Find businesses through the backend Places workflow or import Google Maps companion extension enrichments, score website-sales leads, dedupe results, and export outreach-ready CSV rows.</p>
       </section>
 
       <form className="search-card" onSubmit={handleSearch}>
@@ -178,6 +194,7 @@ export default function App() {
         </div>
         <textarea value={batchInput} onChange={(event) => setBatchInput(event.target.value)} rows={5} />
         <button type="button" disabled={loading} onClick={handleBatchSearch}>{loading ? 'Running batch...' : 'Run Batch Sequentially'}</button>
+        <button type="button" className="secondary-action" disabled={loading} onClick={importExtensionLeads}>Import Extension Leads</button>
       </section>
 
       {progress && <section className="progress-card"><strong>{progress.completed} / {progress.total} searches complete</strong><span>Current: {progress.current}</span><span>{progress.totalLeads} deduped leads found</span></section>}
@@ -190,7 +207,7 @@ export default function App() {
 
       <section className="table-card">
         {!loading && !leads.length && <div className="empty-state">Run a single search or batch search to show mock leads.</div>}
-        {Boolean(filteredLeads.length) && <div className="table-wrap"><table><thead><tr><th>#</th><th>Business</th><th>Status</th><th>Website</th><th>Phone</th><th>Rating</th><th>Reviews</th><th>Location</th><th>Source</th><th>Maps</th></tr></thead><tbody>{filteredLeads.map((lead) => <tr key={leadKey(lead)}><td>{lead.slNo}</td><td><strong>{lead.businessName}</strong><span>{lead.category}</span></td><td><span className={`badge ${String(lead.leadStatus).toLowerCase().replaceAll(' ', '-')}`}>{lead.leadStatus}</span><small>{lead.leadReason}</small></td><td>{lead.website ? <a href={lead.website} target="_blank" rel="noreferrer">Website</a> : <em>No website</em>}</td><td>{lead.phone || '—'}</td><td>{lead.rating || '—'}</td><td>{lead.reviewCount || '—'}</td><td>{lead.address || lead.briefLocation || '—'}</td><td>{lead.sourceSearch || '—'}</td><td>{lead.googleMapsUrl ? <a href={lead.googleMapsUrl} target="_blank" rel="noreferrer">Open</a> : '—'}</td></tr>)}</tbody></table></div>}
+        {Boolean(filteredLeads.length) && <div className="table-wrap"><table><thead><tr><th>#</th><th>Business</th><th>Status</th><th>Website</th><th>Phone</th><th>Rating</th><th>Reviews</th><th>Location</th><th>Source</th><th>Maps</th></tr></thead><tbody>{filteredLeads.map((lead) => <tr key={leadKey(lead)}><td>{lead.slNo}</td><td><strong>{lead.businessName}</strong><span>{lead.category}</span></td><td><span className={`badge ${String(lead.leadStatus).toLowerCase().replaceAll(' ', '-')}`}>{lead.leadStatus}</span><small>{lead.leadReason}</small></td><td>{lead.website ? <a href={lead.website} target="_blank" rel="noreferrer">Website</a> : <em>No website</em>}<small>{lead.websiteStatus || (lead.website ? 'Has website listed on Google Maps' : 'No website listed on Google Maps')}</small></td><td>{lead.phone || '—'}</td><td>{lead.rating || '—'}</td><td>{lead.reviewCount || '—'}</td><td>{lead.address || lead.briefLocation || '—'}</td><td>{lead.sourceSearch || '—'}</td><td>{lead.googleMapsUrl ? <a href={lead.googleMapsUrl} target="_blank" rel="noreferrer">Open</a> : '—'}</td></tr>)}</tbody></table></div>}
       </section>
     </main>
   );
