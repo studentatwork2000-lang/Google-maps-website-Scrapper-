@@ -5,13 +5,14 @@ import { searchPlaces } from './placesApi.js';
 import { scoreLead } from './scorer.js';
 import { createCsv } from './csv.js';
 import { getMockLeads } from './mockData.js';
+import { receiveExtensionPlaces, enrichExtensionPlaces } from './extensionEnrichment.js';
 
 dotenv.config();
 
 const app = express();
 const port = Number(process.env.PORT || 8787);
 
-app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] }));
+app.use(cors({ origin: true }));
 app.use(express.json({ limit: '2mb' }));
 
 app.get('/api/health', (_req, res) => {
@@ -45,6 +46,26 @@ app.post('/api/search', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message || 'Search failed.' });
+  }
+});
+
+
+app.post('/api/extension/places', (req, res) => {
+  try {
+    const result = receiveExtensionPlaces(req.body || {});
+    res.json({ ok: true, ...result });
+  } catch (error) {
+    res.status(500).json({ error: error.message || 'Could not receive extension places.' });
+  }
+});
+
+app.post('/api/extension/enrich', async (req, res) => {
+  try {
+    const leads = await enrichExtensionPlaces(req.body || {});
+    res.json({ ok: true, leads, count: leads.length });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message || 'Extension enrichment failed.' });
   }
 });
 

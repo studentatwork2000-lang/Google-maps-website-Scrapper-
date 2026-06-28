@@ -259,3 +259,9 @@ textarea:focus {
   align-items: center;
   color: #33402f;
 }
+
+.secondary-action {
+  background: #ebe5d7;
+  color: #1f2a20;
+  width: max-content;
+}
